@@ -6,6 +6,7 @@ import android.media.MediaFormat
 import android.view.Surface
 import com.weber.lisper.common.Logger
 import com.weber.lisper.common.runOnBackground
+import java.lang.IllegalStateException
 import java.nio.ByteBuffer
 
 /**
@@ -18,18 +19,23 @@ private const val FRAME_RATE = 30
 private const val BIT_RATE = 6 * 1000 * 1000
 private const val I_FRAME_INTERVAL = 100
 
-class H264Encoder() {
+class H264Encoder {
 
     interface OnEncodeListener {
         fun onEncoded(data: ByteBuffer)
     }
 
-    private lateinit var _surface: Surface
+    private var _surface: Surface? = null
 
     /**
      * 作为输入的Surface
      */
-    val inputSurface: Surface by lazy { _surface }
+    val inputSurface: Surface by lazy {
+        if (_surface == null) {
+            throw IllegalStateException("please start encode first")
+        }
+        _surface!!
+    }
 
     private lateinit var mediaCodec: MediaCodec
 
