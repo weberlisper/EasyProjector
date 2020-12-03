@@ -1,4 +1,4 @@
-package com.weber.lisper.easyprojector
+package com.weber.lisper.sender
 
 import org.junit.Test
 

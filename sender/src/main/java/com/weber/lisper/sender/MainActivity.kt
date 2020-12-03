@@ -1,4 +1,4 @@
-package com.weber.lisper.easyprojector
+package com.weber.lisper.sender
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

@@ -7,7 +7,7 @@ android {
     buildToolsVersion "30.0.1"
 
     defaultConfig {
-        applicationId "com.weber.lisper.easyprojector"
+        applicationId "com.weber.lisper.sender"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
