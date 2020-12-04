@@ -72,8 +72,10 @@ class ProjectService : Service() {
     private fun startVideoEncoder() {
         h264Encoder = H264Encoder()
         h264Encoder.start(1980, 1080, object : H264Encoder.OnEncodeListener {
-            override fun onEncoded(data: ByteBuffer) {
-                Logger.i(TAG, "onEncoded: ")
+            override fun onEncoded(dataBuffer: ByteBuffer) {
+                val data = ByteArray(dataBuffer.remaining())
+                dataBuffer.get(data)
+                Logger.i(TAG, "onEncoded: video data size := " + data.size)
             }
         })
     }

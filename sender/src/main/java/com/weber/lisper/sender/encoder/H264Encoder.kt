@@ -22,7 +22,7 @@ private const val I_FRAME_INTERVAL = 10
 class H264Encoder {
 
     interface OnEncodeListener {
-        fun onEncoded(data: ByteBuffer)
+        fun onEncoded(dataBuffer: ByteBuffer)
     }
 
     private var _surface: Surface? = null
