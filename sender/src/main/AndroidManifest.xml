@@ -25,7 +25,8 @@
         </activity>
 
         <service
-            android:name=".ProjectService" />
+            android:name=".ProjectService"
+            android:foregroundServiceType="mediaProjection"/>
     </application>
 
 </manifest>

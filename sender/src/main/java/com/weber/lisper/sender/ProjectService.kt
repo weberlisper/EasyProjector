@@ -2,6 +2,7 @@ package com.weber.lisper.sender
 
 import android.app.*
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.graphics.Color
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
@@ -9,9 +10,8 @@ import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.IBinder
-import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
 import com.weber.lisper.common.Logger
-import com.weber.lisper.common.delayOnUI
 import com.weber.lisper.sender.constant.EXTRA_DATA_FOR_SCREEN_CAPTURE
 import com.weber.lisper.sender.encoder.H264Encoder
 import java.nio.ByteBuffer
@@ -32,15 +32,23 @@ class ProjectService : Service() {
         return null
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        val CHANNEL_ONE_ID = "com.primedu.cn"
-        val CHANNEL_ONE_NAME = "Channel One"
-        var notificationChannel: NotificationChannel? = null
+        createForegroundNotification(intent)
+
+        initMediaProjection(intent)
+        startVideoEncoder()
+        initVirtualDisplay()
+        return START_NOT_STICKY
+    }
+
+    private fun createForegroundNotification(intent: Intent) {
+        val channelId = "com.weber.lisper.sender"
+        val channelName = "EasyProjector"
+        val notificationChannel: NotificationChannel?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationChannel = NotificationChannel(
-                CHANNEL_ONE_ID,
-                CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH
+                channelId,
+                channelName, NotificationManager.IMPORTANCE_HIGH
             )
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.RED
@@ -50,22 +58,15 @@ class ProjectService : Service() {
             manager.createNotificationChannel(notificationChannel)
         }
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
-        val notification = Notification.Builder(this).setChannelId(CHANNEL_ONE_ID)
+        val notification = NotificationCompat.Builder(this, channelId)
             .setTicker("Nature")
             .setSmallIcon(R.drawable.ic_launcher_background)
-            .setContentTitle("xxxx")
+            .setContentTitle("EasyProjector镜像中")
             .setContentText("")
             .setContentIntent(pendingIntent)
-            .notification
+            .build()
         notification.flags = notification.flags or Notification.FLAG_NO_CLEAR
-        startForeground(1, notification)
-
-        delayOnUI({
-            initMediaProjection(intent)
-            startVideoEncoder()
-            initVirtualDisplay()
-        }, 2000)
-        return START_NOT_STICKY
+        startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
     }
 
     private fun startVideoEncoder() {

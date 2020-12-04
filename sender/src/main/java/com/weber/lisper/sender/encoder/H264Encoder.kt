@@ -14,10 +14,10 @@ import java.nio.ByteBuffer
  */
 private const val TAG = "H264Encoder"
 
-private const val COLOR_FORMAT = MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible
+private const val COLOR_FORMAT = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
 private const val FRAME_RATE = 30
 private const val BIT_RATE = 6 * 1000 * 1000
-private const val I_FRAME_INTERVAL = 100
+private const val I_FRAME_INTERVAL = 10
 
 class H264Encoder {
 
