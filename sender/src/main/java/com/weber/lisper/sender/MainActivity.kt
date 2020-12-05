@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity() {
                 intent.putExtra(EXTRA_DATA_FOR_SCREEN_CAPTURE, data)
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     startForegroundService(intent)
+                } else {
+                    startService(intent)
                 }
             } else {
                 Logger.w(TAG, "onActivityResult: request permission for screen capture refused")

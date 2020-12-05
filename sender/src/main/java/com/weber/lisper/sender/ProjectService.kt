@@ -9,11 +9,14 @@ import android.hardware.display.VirtualDisplay
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
+import android.os.Environment
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.weber.lisper.common.FileSaver
 import com.weber.lisper.common.Logger
 import com.weber.lisper.sender.constant.EXTRA_DATA_FOR_SCREEN_CAPTURE
 import com.weber.lisper.sender.encoder.H264Encoder
+import java.io.File
 import java.nio.ByteBuffer
 
 
@@ -27,6 +30,7 @@ class ProjectService : Service() {
     private lateinit var mediaProjection: MediaProjection
     private lateinit var h264Encoder: H264Encoder
     private lateinit var virtualDisplay: VirtualDisplay
+    private lateinit var fileSaver: FileSaver
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -38,6 +42,10 @@ class ProjectService : Service() {
         initMediaProjection(intent)
         startVideoEncoder()
         initVirtualDisplay()
+        fileSaver = FileSaver(
+            FileSaver.FILE_CREATE_NEW,
+            Environment.getExternalStorageDirectory().absolutePath + File.separator + "abcd.h264"
+        )
         return START_NOT_STICKY
     }
 
@@ -66,7 +74,11 @@ class ProjectService : Service() {
             .setContentIntent(pendingIntent)
             .build()
         notification.flags = notification.flags or Notification.FLAG_NO_CLEAR
-        startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+        } else {
+            startForeground(1, notification)
+        }
     }
 
     private fun startVideoEncoder() {
@@ -76,6 +88,7 @@ class ProjectService : Service() {
                 val data = ByteArray(dataBuffer.remaining())
                 dataBuffer.get(data)
                 Logger.i(TAG, "onEncoded: video data size := " + data.size)
+                fileSaver.append(data)
             }
         })
     }
