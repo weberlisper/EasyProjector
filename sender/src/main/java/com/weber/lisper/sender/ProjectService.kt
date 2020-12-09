@@ -12,8 +12,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.weber.lisper.common.FileSaver
-import com.weber.lisper.common.Logger
+import com.weber.lisper.common.*
 import com.weber.lisper.sender.constant.EXTRA_DATA_FOR_SCREEN_CAPTURE
 import com.weber.lisper.sender.encoder.H264Encoder
 import java.io.File
@@ -31,6 +30,7 @@ class ProjectService : Service() {
     private lateinit var h264Encoder: H264Encoder
     private lateinit var virtualDisplay: VirtualDisplay
     private lateinit var fileSaver: FileSaver
+    private lateinit var screenInfo: ScreenInfo
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -38,6 +38,8 @@ class ProjectService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         createForegroundNotification(intent)
+
+        screenInfo = getScreenInfo()
 
         initMediaProjection(intent)
         startVideoEncoder()
@@ -83,20 +85,29 @@ class ProjectService : Service() {
 
     private fun startVideoEncoder() {
         h264Encoder = H264Encoder()
-        h264Encoder.start(1980, 1080, object : H264Encoder.OnEncodeListener {
-            override fun onEncoded(dataBuffer: ByteBuffer) {
-                val data = ByteArray(dataBuffer.remaining())
-                dataBuffer.get(data)
-                Logger.i(TAG, "onEncoded: video data size := " + data.size)
-                fileSaver.append(data)
-            }
-        })
+        h264Encoder.start(
+            screenInfo.width,
+            screenInfo.height,
+            object : H264Encoder.OnEncodeListener {
+                override fun onEncoded(dataBuffer: ByteBuffer) {
+                    val data = ByteArray(dataBuffer.remaining())
+                    dataBuffer.get(data)
+                    Logger.i(TAG, "onEncoded: video data size: " + data.toHex())
+                    fileSaver.append(data)
+                }
+            })
     }
 
     private fun initVirtualDisplay() {
         virtualDisplay = mediaProjection.createVirtualDisplay(
-            "EasyProjector", 1980, 1080, 320, DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
-            h264Encoder.inputSurface, null, null
+            "EasyProjector",
+            screenInfo.width,
+            screenInfo.height,
+            screenInfo.densityDpi,
+            DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+            h264Encoder.inputSurface,
+            null,
+            null
         )
     }
 

@@ -31,7 +31,7 @@ class FileSaver(
         singleExecutor.submit {
             var bos: BufferedOutputStream? = null
             try {
-                bos = BufferedOutputStream(FileOutputStream(file))
+                bos = BufferedOutputStream(FileOutputStream(file, true))
                 bos.write(data)
                 bos.flush()
             } catch (e: Exception) {
