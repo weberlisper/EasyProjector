@@ -16,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
-        <activity android:name="com.weber.lisper.sender.MainActivity">
+        <activity android:name=".view.MPPermissionRequestActivity" />
+        <activity android:name=".view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,8 +26,8 @@
         </activity>
 
         <service
-            android:name=".ProjectService"
-            android:foregroundServiceType="mediaProjection"/>
+            android:name=".service.MediaProjectService"
+            android:foregroundServiceType="mediaProjection" />
     </application>
 
 </manifest>

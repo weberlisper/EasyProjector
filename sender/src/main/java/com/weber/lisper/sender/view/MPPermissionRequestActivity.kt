@@ -1,20 +1,21 @@
-package com.weber.lisper.sender
+package com.weber.lisper.sender.view
 
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
-import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
 import com.weber.lisper.common.Logger
+import com.weber.lisper.sender.R
 import com.weber.lisper.sender.constant.EXTRA_DATA_FOR_SCREEN_CAPTURE
 import com.weber.lisper.sender.constant.REQUEST_CODE_FOR_SCREEN_CAPTURE
+import com.weber.lisper.sender.screencapture.ScreenCapture
+import com.weber.lisper.sender.service.MediaProjectService
 
-private const val TAG = "MainActivity"
+private const val TAG = "MPPermissionRequest"
 
-class MainActivity : AppCompatActivity() {
+class MPPermissionRequestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
         requestMediaProjectionPermission()
     }
 
@@ -29,16 +30,12 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_FOR_SCREEN_CAPTURE) {
             if (resultCode == RESULT_OK) {
-                val intent = Intent(this, ProjectService::class.java)
-                intent.putExtra(EXTRA_DATA_FOR_SCREEN_CAPTURE, data)
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    startForegroundService(intent)
-                } else {
-                    startService(intent)
-                }
+                ScreenCapture.instance.start(this, data!!)
             } else {
                 Logger.w(TAG, "onActivityResult: request permission for screen capture refused")
+                ScreenCapture.instance.rejectPermission()
             }
         }
+        finish()
     }
 }
