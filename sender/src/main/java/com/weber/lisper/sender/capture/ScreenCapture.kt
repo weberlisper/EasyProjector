@@ -1,4 +1,4 @@
-package com.weber.lisper.sender.screencapture
+package com.weber.lisper.sender.capture
 
 import android.app.Activity
 import android.app.Service
@@ -8,6 +8,7 @@ import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import com.weber.lisper.common.Logger
 import com.weber.lisper.sender.encoder.H264Encoder
 import com.weber.lisper.sender.view.MPPermissionRequestActivity
 import java.nio.ByteBuffer
@@ -23,11 +24,17 @@ class ScreenCapture private constructor() {
     interface OnScreenCaptureListener {
         fun onCapture(data: ByteArray)
 
-        fun onStart()
+        fun onStart() {
 
-        fun onStop()
+        }
 
-        fun onPermissionRejected()
+        fun onStop() {
+
+        }
+
+        fun onPermissionRejected() {
+
+        }
     }
 
     private var listener: OnScreenCaptureListener? = null
@@ -39,11 +46,29 @@ class ScreenCapture private constructor() {
     private lateinit var h264Encoder: H264Encoder
     private lateinit var virtualDisplay: VirtualDisplay
 
+    @Volatile
+    private var hasInCapturing = false
+
     fun setOnScreenCaptureListener(listener: OnScreenCaptureListener) {
+        if (hasInCapturing) {
+            Logger.w(
+                TAG,
+                "setOnScreenCaptureListener: ScreenCapture has in capturing, cannot reset OnScreenCaptureListener"
+            )
+            return
+        }
         this.listener = listener
     }
 
     fun start(context: Context, width: Int, height: Int, densityDpi: Int) {
+        if (hasInCapturing) {
+            Logger.w(
+                TAG,
+                "start: ScreenCapture has in capturing, should stop it first"
+            )
+            return
+        }
+        hasInCapturing = true
         this.width = width
         this.height = height
         this.densityDpi = densityDpi
@@ -97,11 +122,23 @@ class ScreenCapture private constructor() {
     }
 
     fun rejectPermission() {
+        hasInCapturing = false
         listener?.onPermissionRejected()
     }
 
     fun stop() {
-
+        if (!hasInCapturing) {
+            Logger.w(
+                TAG,
+                "stop: ScreenCapture has not in capturing"
+            )
+            return
+        }
+        hasInCapturing = false
+        h264Encoder.stop()
+        mediaProjection.stop()
+        virtualDisplay.release()
+        listener?.onStop()
     }
 
     companion object {

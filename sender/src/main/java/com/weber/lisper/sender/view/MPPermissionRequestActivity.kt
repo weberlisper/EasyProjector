@@ -5,11 +5,8 @@ import android.media.projection.MediaProjectionManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.weber.lisper.common.Logger
-import com.weber.lisper.sender.R
-import com.weber.lisper.sender.constant.EXTRA_DATA_FOR_SCREEN_CAPTURE
 import com.weber.lisper.sender.constant.REQUEST_CODE_FOR_SCREEN_CAPTURE
-import com.weber.lisper.sender.screencapture.ScreenCapture
-import com.weber.lisper.sender.service.MediaProjectService
+import com.weber.lisper.sender.capture.ScreenCapture
 
 private const val TAG = "MPPermissionRequest"
 

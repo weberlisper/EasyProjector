@@ -11,7 +11,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.weber.lisper.common.*
 import com.weber.lisper.sender.R
-import com.weber.lisper.sender.screencapture.ScreenCapture
+import com.weber.lisper.sender.capture.ScreenCapture
 import java.io.File
 
 
@@ -88,14 +88,6 @@ class MediaProjectService : Service() {
                     buildFilePath()
                 )
             }
-
-            override fun onStop() {
-
-            }
-
-            override fun onPermissionRejected() {
-
-            }
         })
         startCaptureScreen()
     }
@@ -130,5 +122,11 @@ class MediaProjectService : Service() {
 
 private fun buildFilePath(): String {
     val fileName = "easy-projector-${getCurrentTimestamp()}"
-    return Environment.getExternalStorageDirectory().absolutePath + File.separator + "EasyProjector" + File.separator + "${fileName}.h264"
+    val dirPath =
+        Environment.getExternalStorageDirectory().absolutePath + File.separator + "EasyProjector"
+    val dir = File(dirPath)
+    if (!dir.exists()) {
+        dir.mkdirs()
+    }
+    return dirPath + File.separator + "${fileName}.h264"
 }

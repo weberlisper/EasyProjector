@@ -5,6 +5,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @SuppressLint("SimpleDateFormat")
-private val timestampFormat = SimpleDateFormat("YYYYMMdd-HH-mm-ss-S")
+private val timestampFormat = SimpleDateFormat("YYYYMMddHHmmssSSS")
 
 fun getCurrentTimestamp(): String = timestampFormat.format(Date())

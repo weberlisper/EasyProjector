@@ -103,6 +103,7 @@ class H264Encoder {
 
     fun stop() {
         isRunning = false
+        onEncodeListener = null
         mediaCodec.stop()
         mediaCodec.release()
     }
